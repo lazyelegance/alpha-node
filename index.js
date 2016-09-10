@@ -1,5 +1,5 @@
 var firebase = require("firebase");
-var saveExpense = require("./save");
+var save = require("./save");
 
 firebase.initializeApp({
   serviceAccount: "alpha-keys.json",
@@ -12,11 +12,14 @@ var ref = db.ref("tasks");
 ref.orderByChild("nextDate").once("value", function(snapshot) {
   snapshot.forEach(function(childSnapshot) {
     var task = childSnapshot.val();
-    console.log(task.nextDate);
-    if (task.nextDate == "10 September 2016") {
-      console.log(task.expense);
-      var expensesRef = db.ref("expenses").child(task.userId);
-      saveExpense.saveExpense(expensesRef, task);
+    var taskRef = childSnapshot.ref;
+
+    //TODO move to after save
+    if (task.nextDate == "3 September 2016") {
+      taskRef.update({
+        nextDate: "3 October 2016"
+      });
+      save.saveExpense(db, task);
     } else {
       console.log("NO");
     }
