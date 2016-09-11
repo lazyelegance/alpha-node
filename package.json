@@ -9,6 +9,7 @@
   "author": "Ezra Bathini",
   "license": "ISC",
   "dependencies": {
+    "dateformat": "^1.0.12",
     "firebase": "^3.3.1"
   },
   "devDependencies": {},
