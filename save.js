@@ -2,16 +2,16 @@ var firebase = require("firebase");
 var dateFormat = require('dateformat');
 
 var now = new Date();
-var nowString = dateFormat(now, "d mmmm yyyy");
+var nowString = dateFormat(now, "d mmmm yyyy HH:MM:ss");
 
 var month = dateFormat(now, "mmmm");
 var week = dateFormat(now, "mmmm");
 var day = dateFormat(now, "d");
 
-var monthString = "m_" + dateFormat(now, "mmmm");
-var weekString = "w_" + dateFormat(now, "mmmm");
-var monthCounterString = "counter_m_" + dateFormat(now, "mmmm");
-var weekCounterString = "counter_w_" + dateFormat(now, "mmmm");
+var monthString = "m_" + dateFormat(now, "mmmm_yyyy");
+var weekString = "w_" + dateFormat(now, "mmmm_yyyy");
+var monthCounterString = "counter_m_" + dateFormat(now, "mmmm_yyyy");
+var weekCounterString = "counter_w_" + dateFormat(now, "mmmm_yyyy");
 
 function saveExpense(db, task) {
   var expensesRef = db.ref("expenses").child(task.userId);
@@ -21,8 +21,11 @@ function saveExpense(db, task) {
   newExpense.set({
     description: task.expense,
     billAmount: task.amount,
-    // dateAdded: task.
-    category: task.category
+    dateAdded: nowString,
+    category: task.category,
+    month: month,
+    day: day,
+    week: week
   });
 
   var categoriesRef = expensesRef.child("categories").child(task.category);
@@ -42,20 +45,22 @@ function saveExpense(db, task) {
       var categoryRecord = snapshot.val();
 
         if (snapshot.hasChild(monthString)) {
-          categoryMonthTotal = category.monthString + task.amount;
-          categoryMonthCounter = category.monthCounterString + categoryMonthCounter;
+          console.log(categoryRecord[monthString]);
+          categoryMonthTotal = categoryRecord[monthString] + task.amount;
+          categoryMonthCounter = categoryRecord[monthCounterString] + categoryMonthCounter;
         } else {
           categoryMonthTotal =  task.amount;
         }
 
         if (snapshot.hasChild(weekString)) {
-          categoryWeekTotal = category.weekString + task.amount;
-          categoryWeekCounter = category.weekCounterString + categoryWeekCounter;
+          categoryWeekTotal = categoryRecord[weekString] + task.amount;
+          categoryWeekCounter = categoryRecord[weekCounterString] + categoryWeekCounter;
         } else {
           categoryWeekTotal =  task.amount;
         }
 
-        console.log("category record... " + categoryRecord);
+        console.log(categoryMonthTotal);
+
 
         var newCounter = categoryRecord.counter + 1;
         var newTotal = categoryRecord.total + task.amount;
