@@ -81,6 +81,37 @@ function saveExpense(db, task) {
 
   var totalsRef = expensesRef.child("totals");
 
+
+
+  totalsRef.once("value", function(snapshot) {
+    if (snapshot.exists()) {
+
+      var totalsRecord = snapshot.val();
+      var monthTotal = task.amount;
+      var weekTotal = task.amount;
+      var total = task.amount;
+
+      if (snapshot.hasChild(monthString)) {
+        monthTotal = totalsRecord[monthString] + task.amount;
+      }
+
+      if (snapshot.hasChild(weekString)) {
+        weekTotal = totalsRecord[weekString] + task.amount;
+      }
+
+      if (snapshot.hasChild("total")) {
+        total = totalsRecord.total + task.amount
+      }
+
+      totalsRef.update({
+        total: total,
+        [monthString]: monthTotal,
+        [weekString]: weekTotal
+      })
+    
+    }
+  });
+
 };
 
 function updateNextDate(task) {
