@@ -5,7 +5,7 @@ var now = new Date();
 var nowString = dateFormat(now, "d mmmm yyyy HH:MM:ss");
 
 var month = dateFormat(now, "mmmm");
-var week = dateFormat(now, "mmmm");
+var week = dateFormat(now, "W");
 var day = dateFormat(now, "d");
 
 var monthString = "m_" + dateFormat(now, "mmmm_yyyy");
@@ -15,8 +15,6 @@ var weekCounterString = "counter_w_" + dateFormat(now, "mmmm_yyyy");
 
 function saveExpense(db, task) {
   var expensesRef = db.ref("expenses").child(task.userId);
-
-  console.log(task);
   var newExpense = expensesRef.push();
   newExpense.set({
     description: task.expense,
@@ -37,15 +35,10 @@ function saveExpense(db, task) {
   var categoryMonthCounter = 1;
   var categoryWeekCounter = 1;
 
-
-
-
   categoriesRef.once("value", function(snapshot) {
     if (snapshot.exists()) {
       var categoryRecord = snapshot.val();
-
         if (snapshot.hasChild(monthString)) {
-          console.log(categoryRecord[monthString]);
           categoryMonthTotal = categoryRecord[monthString] + task.amount;
           categoryMonthCounter = categoryRecord[monthCounterString] + categoryMonthCounter;
         } else {
@@ -59,14 +52,8 @@ function saveExpense(db, task) {
           categoryWeekTotal =  task.amount;
         }
 
-        console.log(categoryMonthTotal);
-
-
         var newCounter = categoryRecord.counter + 1;
         var newTotal = categoryRecord.total + task.amount;
-
-        console.log(newCounter);
-        console.log(newTotal);
 
         categoriesRef.update({
           counter: newCounter,
@@ -108,15 +95,40 @@ function saveExpense(db, task) {
         [monthString]: monthTotal,
         [weekString]: weekTotal
       })
-    
+
     }
   });
 
 };
 
-function updateNextDate(task) {
+function updateNextDate(ref, task) {
+
+  var days = 30;
+  switch (task.frequency) {
+    case "M":
+      days = 30;
+      break;
+    case "W":
+      days = 14;
+      break;
+    case "2W":
+      days = 14;
+      break;
+    default:
+      break;
+  }
+
+  var newNow = now;
+
+  newNow.setTime(newNow.getTime() + days * 86400000 );
+  var newNextDate = dateFormat(newNow,  "d mmmm yyyy");
+
+  ref.update({
+    nextDate: newNextDate
+  });
 
 
 }
 
 exports.saveExpense = saveExpense;
+exports.updateNextDate = updateNextDate;
