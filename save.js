@@ -105,11 +105,14 @@ function updateNextDate(ref, task) {
 
   var days = 30;
   switch (task.frequency) {
+    case "Y":
+      days = 365;
+      break;
     case "M":
       days = 30;
       break;
     case "W":
-      days = 14;
+      days = 7;
       break;
     case "2W":
       days = 14;
